@@ -1,0 +1,47 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #03030f;
+  --bg-panel: #060618;
+  --panel-border: #121248;
+  --neon-blue: #00aaff;
+  --neon-blue-dim: rgba(0, 170, 255, 0.25);
+  --neon-green: #00ff88;
+  --neon-purple: #bb44ff;
+  --neon-orange: #ff8822;
+  --neon-red: #ff3355;
+  --text: #b0ccff;
+  --text-dim: #3a5080;
+  --text-muted: #1a2840;
+  --slider-track: #0a1540;
+  --slider-thumb: #0066cc;
+  --font-mono: 'Share Tech Mono', 'Courier New', monospace;
+  --font-title: 'Orbitron', 'Share Tech Mono', monospace;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+}
+
+.app {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
