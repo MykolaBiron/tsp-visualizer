@@ -100,10 +100,10 @@ export default function Settings({
       <div className="settings-group">
         <label className="settings-label">
           Speed <span className="settings-value">{speedLabel}</span>
-          {['bruteForce', 'twoOpt'].includes(algorithm) && (
+          {algorithm === 'bruteForce' && (
             <span className="speed-boost-badge">10× speed up</span>
           )}
-          {['nearestNeighbour', 'dynamicProgramming', 'christofides'].includes(algorithm) && (
+          {['nearestNeighbour', 'dynamicProgramming', 'christofides', 'twoOpt'].includes(algorithm) && (
             <span className="speed-nn-badge">step-by-step</span>
           )}
         </label>

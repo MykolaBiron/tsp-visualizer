@@ -74,6 +74,7 @@ export default function App() {
       nearestNeighbour:   160,   // ~6 fps
       dynamicProgramming:  25,   // 40 fps
       christofides:       160,   // ~6 fps
+      twoOpt:             160,   // ~6 fps
     };
 
     const animate = () => {

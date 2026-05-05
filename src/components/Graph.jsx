@@ -19,8 +19,8 @@ const C = {
   matchGlow:   '#8800ff',
   euler:       '#00ddff',
   eulerGlow:   '#0088cc',
-  text:        '#6080aa',
-  textBright:  '#c0d8ff',
+  text:        '#7eadd4',
+  textBright:  '#d8eaff',
 };
 
 function toCanvas(node, W, H, pad = 50) {
@@ -78,13 +78,6 @@ function drawNode(ctx, x, y, r, color, glow, label, fontSize) {
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fill();
-  // bright inner core
-  ctx.shadowBlur = 6;
-  ctx.shadowColor = glow || color;
-  ctx.fillStyle = 'rgba(180,230,255,0.75)';
-  ctx.beginPath();
-  ctx.arc(x, y, r * 0.32, 0, Math.PI * 2);
   ctx.fill();
   // label — fully clear shadow so text is crisp
   ctx.shadowBlur = 0;
