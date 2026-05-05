@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Settings from './components/Settings.jsx';
 import Graph from './components/Graph.jsx';
 import { createAlgorithmGenerator } from './algorithms/index.js';
@@ -20,20 +20,23 @@ export default function App() {
   const [isRunning, setIsRunning] = useState(false);
   const [stats, setStats] = useState({ steps: 0, bestCost: null, elapsed: 0 });
 
-  const generatorRef = useRef(null);
-  const animRef = useRef(null);
-  const isRunningRef = useRef(false);
-  const speedRef = useRef(10);
-  const stepsRef = useRef(0);
-  const startTimeRef = useRef(0);
+  const generatorRef    = useRef(null);
+  const animRef         = useRef(null);
+  const isRunningRef    = useRef(false);
+  const speedRef        = useRef(10);
+  const algorithmRef    = useRef(algorithm);
+  const stepsRef        = useRef(0);
+  const startTimeRef    = useRef(0);
 
-  useEffect(() => { speedRef.current = speed; }, [speed]);
+  useEffect(() => { speedRef.current   = speed;     }, [speed]);
+  useEffect(() => { algorithmRef.current = algorithm; }, [algorithm]);
 
   const stopAnimation = useCallback(() => {
     isRunningRef.current = false;
     setIsRunning(false);
-    if (animRef.current) {
+    if (animRef.current !== null) {
       cancelAnimationFrame(animRef.current);
+      clearTimeout(animRef.current);
       animRef.current = null;
     }
     generatorRef.current = null;
@@ -65,10 +68,20 @@ export default function App() {
     startTimeRef.current = performance.now();
     setIsRunning(true);
 
+    // Algorithms with a fixed delay run 1 step per tick at the specified ms interval.
+    // Algorithms without an entry batch `speed` steps per requestAnimationFrame.
+    const ALGO_DELAY_MS = {
+      nearestNeighbour:   160,   // ~6 fps
+      dynamicProgramming:  25,   // 40 fps
+      christofides:       160,   // ~6 fps
+    };
+
     const animate = () => {
       if (!isRunningRef.current || !generatorRef.current) return;
 
-      const stepsPerFrame = speedRef.current;
+      const delayMs = ALGO_DELAY_MS[algorithmRef.current];
+      const isSlow = delayMs !== undefined;
+      const stepsPerFrame = isSlow ? 1 : speedRef.current;
       let lastFrame = null;
 
       for (let i = 0; i < stepsPerFrame; i++) {
@@ -101,7 +114,13 @@ export default function App() {
         });
       }
 
-      animRef.current = requestAnimationFrame(animate);
+      if (isSlow) {
+        animRef.current = setTimeout(() => {
+          animRef.current = requestAnimationFrame(animate);
+        }, delayMs);
+      } else {
+        animRef.current = requestAnimationFrame(animate);
+      }
     };
 
     animRef.current = requestAnimationFrame(animate);

@@ -72,22 +72,24 @@ function drawPath(ctx, pts, path, color, width, glow) {
 
 function drawNode(ctx, x, y, r, color, glow, label, fontSize) {
   ctx.save();
-  // ring glow
+  // outer glow ring
   ctx.shadowBlur = 28;
   ctx.shadowColor = glow || color;
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2);
   ctx.fill();
-  // bright core
+  // bright inner core
   ctx.shadowBlur = 6;
+  ctx.shadowColor = glow || color;
   ctx.fillStyle = 'rgba(180,230,255,0.75)';
   ctx.beginPath();
   ctx.arc(x, y, r * 0.32, 0, Math.PI * 2);
   ctx.fill();
-  // label
+  // label — fully clear shadow so text is crisp
   ctx.shadowBlur = 0;
-  ctx.fillStyle = '#fff';
+  ctx.shadowColor = 'transparent';
+  ctx.fillStyle = '#ffffff';
   ctx.font = `bold ${fontSize}px 'Share Tech Mono', monospace`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -186,15 +188,23 @@ export default function Graph({ nodes, frame }) {
     const container = containerRef.current;
     if (!canvas || !container) return;
 
+    const dpr  = window.devicePixelRatio || 1;
     const rect = container.getBoundingClientRect();
     const W = rect.width, H = rect.height;
     if (W === 0 || H === 0) return;
-    if (canvas.width !== W || canvas.height !== H) {
-      canvas.width = W;
-      canvas.height = H;
+
+    // Scale canvas buffer to physical pixels for crisp rendering
+    const pw = Math.round(W * dpr);
+    const ph = Math.round(H * dpr);
+    if (canvas.width !== pw || canvas.height !== ph) {
+      canvas.width  = pw;
+      canvas.height = ph;
+      canvas.style.width  = W + 'px';
+      canvas.style.height = H + 'px';
     }
 
     const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);   // reset + apply DPR scale
     ctx.clearRect(0, 0, W, H);
 
     // Background
