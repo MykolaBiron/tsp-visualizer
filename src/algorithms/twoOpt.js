@@ -19,13 +19,13 @@ export function* twoOpt(nodes) {
   let cost = circularCost(tour, d);
 
   yield {
-    currentPath:  toPath(tour),
-    bestPath:     toPath(tour),
-    currentCost:  cost,
-    bestCost:     cost,
-    phase:        '2-opt  (NN seed)',
-    status:       `Starting from Nearest Neighbour tour  |  Cost: ${cost.toFixed(4)}`,
-    progress:     0,
+    currentPath: toPath(tour),
+    bestPath: toPath(tour),
+    currentCost: cost,
+    bestCost: cost,
+    phase: '2-opt  (NN seed)',
+    status: `Starting from Nearest Neighbour tour  |  Cost: ${cost.toFixed(4)}`,
+    progress: 0,
   };
 
   // ── Phase 2: 2-opt improvements ──
@@ -41,7 +41,7 @@ export function* twoOpt(nodes) {
       for (let j = i + 2; j < n; j++) {
         if (i === 0 && j === n - 1) continue;   // skip full reversal
 
-        const a = tour[i],  b = tour[i + 1];
+        const a = tour[i], b = tour[i + 1];
         const c = tour[j], e = tour[(j + 1) % n];
 
         const gain = d[a][b] + d[c][e] - d[a][c] - d[b][e];
@@ -52,14 +52,14 @@ export function* twoOpt(nodes) {
           improved = true;
 
           yield {
-            currentPath:  toPath(tour),
-            bestPath:     toPath(tour),
-            currentCost:  cost,
-            bestCost:     cost,
+            currentPath: toPath(tour),
+            bestPath: toPath(tour),
+            currentCost: cost,
+            bestCost: cost,
             highlightEdge: { from: a, to: c },
-            phase:        '2-opt',
-            status:       `2-opt swap (pass ${pass})  |  Cost: ${cost.toFixed(4)}`,
-            progress:     0.5,
+            phase: '2-opt',
+            status: `2-opt swap (pass ${pass})  |  Cost: ${cost.toFixed(4)}`,
+            progress: 0.5,
           };
           // restart inner loops after improvement
           break;
@@ -70,13 +70,13 @@ export function* twoOpt(nodes) {
 
     if (!improved) {
       yield {
-        currentPath:  toPath(tour),
-        bestPath:     toPath(tour),
-        currentCost:  cost,
-        bestCost:     cost,
-        phase:        '2-opt',
-        status:       `2-opt converged after ${pass} pass(es)  |  Cost: ${cost.toFixed(4)}`,
-        progress:     0.5,
+        currentPath: toPath(tour),
+        bestPath: toPath(tour),
+        currentCost: cost,
+        bestCost: cost,
+        phase: '2-opt',
+        status: `2-opt converged after ${pass} pass(es)  |  Cost: ${cost.toFixed(4)}`,
+        progress: 0.5,
       };
     }
   }
@@ -84,12 +84,12 @@ export function* twoOpt(nodes) {
   // ── Phase 3: Or-opt (move 1, 2, 3 consecutive nodes) ──
   yield {
     currentPath: toPath(tour),
-    bestPath:    toPath(tour),
+    bestPath: toPath(tour),
     currentCost: cost,
-    bestCost:    cost,
-    phase:       '3-opt (or-opt)',
-    status:      'Starting Or-opt relocations…',
-    progress:    0.6,
+    bestCost: cost,
+    phase: '3-opt (or-opt)',
+    status: 'Starting Or-opt relocations…',
+    progress: 0.6,
   };
 
   for (const segLen of [1, 2, 3]) {
@@ -127,12 +127,12 @@ export function* twoOpt(nodes) {
 
           yield {
             currentPath: toPath(tour),
-            bestPath:    toPath(tour),
+            bestPath: toPath(tour),
             currentCost: cost,
-            bestCost:    cost,
-            phase:       `3-opt (or-opt-${segLen})`,
-            status:      `Or-opt-${segLen} relocation  |  Cost: ${cost.toFixed(4)}`,
-            progress:    0.6 + 0.4 * (segLen / 3),
+            bestCost: cost,
+            phase: `3-opt (or-opt-${segLen})`,
+            status: `Or-opt-${segLen} relocation  |  Cost: ${cost.toFixed(4)}`,
+            progress: 0.6 + 0.4 * (segLen / 3),
           };
           break;
         }
@@ -142,12 +142,12 @@ export function* twoOpt(nodes) {
 
   yield {
     currentPath: toPath(tour),
-    bestPath:    toPath(tour),
+    bestPath: toPath(tour),
     currentCost: cost,
-    bestCost:    cost,
-    progress:    1,
-    phase:       'Complete',
-    status:      `Optimised tour  |  Cost: ${cost.toFixed(4)}`,
-    done:        true,
+    bestCost: cost,
+    progress: 1,
+    phase: 'Complete',
+    status: `Optimised tour  |  Cost: ${cost.toFixed(4)}`,
+    done: true,
   };
 }
