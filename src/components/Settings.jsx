@@ -4,8 +4,6 @@ const ALGORITHMS = [
   { value: 'bruteForce',         label: 'Brute Force',         maxNodes: 10, complexity: 'O(n!)' },
   { value: 'dynamicProgramming', label: 'Dynamic Programming', maxNodes: 15, complexity: 'O(n²·2ⁿ)' },
   { value: 'nearestNeighbour',   label: 'Nearest Neighbour',   maxNodes: 20, complexity: 'O(n²)' },
-  { value: 'twoOpt',             label: '2-opt & 3-opt',       maxNodes: 20, complexity: 'O(n²)' },
-  { value: 'christofides',       label: 'Christofides',        maxNodes: 20, complexity: 'O(n³)' },
 ];
 
 const ALGO_NOTES = {
@@ -15,10 +13,6 @@ const ALGO_NOTES = {
     'Held-Karp DP finds the exact optimal tour. Exponential memory: limited to 15 nodes.',
   nearestNeighbour:
     'Greedy heuristic — always visit the closest unvisited city. Fast but not optimal.',
-  twoOpt:
-    'Starts with a greedy tour, then swaps edge pairs (2-opt) and relocates nodes (or-opt) until no gain remains.',
-  christofides:
-    'MST + perfect matching + Euler shortcutting. Guarantees ≤ 1.5× optimal on metric graphs.',
 };
 
 export default function Settings({
@@ -103,7 +97,7 @@ export default function Settings({
           {algorithm === 'bruteForce' && (
             <span className="speed-boost-badge">10× speed up</span>
           )}
-          {['nearestNeighbour', 'dynamicProgramming', 'christofides', 'twoOpt'].includes(algorithm) && (
+          {['nearestNeighbour', 'dynamicProgramming'].includes(algorithm) && (
             <span className="speed-nn-badge">step-by-step</span>
           )}
         </label>
@@ -161,18 +155,6 @@ export default function Settings({
           <span className="legend-dot" style={{ background: '#00ff88', boxShadow: '0 0 6px #00ff88' }} />
           <span>Best tour</span>
         </div>
-        {algorithm === 'christofides' && (
-          <>
-            <div className="legend-item">
-              <span className="legend-dot" style={{ background: '#ff8822', boxShadow: '0 0 6px #ff8822' }} />
-              <span>MST edges</span>
-            </div>
-            <div className="legend-item">
-              <span className="legend-dot" style={{ background: '#bb44ff', boxShadow: '0 0 6px #bb44ff' }} />
-              <span>Matching</span>
-            </div>
-          </>
-        )}
       </div>
 
       <div className="settings-actions">
