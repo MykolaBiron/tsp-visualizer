@@ -3,7 +3,11 @@ import './Settings.css';
 const ALGORITHMS = [
   { value: 'bruteForce',         label: 'Brute Force',         maxNodes: 10, complexity: 'O(n!)' },
   { value: 'dynamicProgramming', label: 'Dynamic Programming', maxNodes: 15, complexity: 'O(n²·2ⁿ)' },
-  { value: 'nearestNeighbour',   label: 'Nearest Neighbour',   maxNodes: 20, complexity: 'O(n²)' },
+  { value: 'nearestNeighbour',   label: 'Nearest Neighbour',   maxNodes: 35, complexity: 'O(n²)' },
+  { value: 'nearestInsertion',   label: 'Nearest Insertion',   maxNodes: 35, complexity: 'O(n²)' },
+  { value: 'minimalSpanningTree', label: 'Double MST (2-Appx)', maxNodes: 35, complexity: 'O(n²)' },
+  { value: 'christofides',       label: 'Christofides (1.5-Appx)', maxNodes: 30, complexity: 'O(n³)' },
+  { value: 'twoOpt',             label: '2-Opt Local Search',  maxNodes: 35, complexity: 'O(n²)' },
 ];
 
 const ALGO_NOTES = {
@@ -13,6 +17,14 @@ const ALGO_NOTES = {
     'Held-Karp DP finds the exact optimal tour. Exponential memory: limited to 15 nodes.',
   nearestNeighbour:
     'Greedy heuristic — always visit the closest unvisited city. Fast but not optimal.',
+  nearestInsertion:
+    'Constructs a tour by choosing the unvisited node closest to the current tour and inserting it to minimize cost increase.',
+  minimalSpanningTree:
+    'Builds a Minimum Spanning Tree, performs DFS traversal, and shortcuts to yield a tour (2-approximation).',
+  christofides:
+    'Uses MST, odd-degree matching, Eulerian circuit, and shortcutting to find a tour within 1.5x of optimal.',
+  twoOpt:
+    'Iterative local search. Starts with Nearest Neighbour and swaps edges to remove crossings until local minimum is found.',
 };
 
 export default function Settings({
@@ -97,7 +109,7 @@ export default function Settings({
           {algorithm === 'bruteForce' && (
             <span className="speed-boost-badge">10× speed up</span>
           )}
-          {['nearestNeighbour', 'dynamicProgramming'].includes(algorithm) && (
+          {['nearestNeighbour', 'nearestInsertion', 'minimalSpanningTree', 'christofides', 'twoOpt', 'dynamicProgramming'].includes(algorithm) && (
             <span className="speed-nn-badge">step-by-step</span>
           )}
         </label>
