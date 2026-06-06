@@ -71,10 +71,12 @@ export default function App() {
     // Algorithms with a fixed delay run 1 step per tick at the specified ms interval.
     // Algorithms without an entry batch `speed` steps per requestAnimationFrame.
     const ALGO_DELAY_MS = {
-      nearestNeighbour:   160,   // ~6 fps
-      dynamicProgramming:  25,   // 40 fps
-      christofides:       160,   // ~6 fps
-      twoOpt:             160,   // ~6 fps
+      nearestNeighbour:    160,   // ~6 fps
+      dynamicProgramming:   25,   // 40 fps
+      christofides:        160,   // ~6 fps
+      twoOpt:              160,   // ~6 fps
+      nearestInsertion:    120,   // ~8 fps
+      minimalSpanningTree: 120,   // ~8 fps
     };
 
     const animate = () => {
