@@ -32,7 +32,7 @@ export default function Settings({
   algorithm, setAlgorithm,
   speed, setSpeed,
   isRunning, onRunStop, onRandomize,
-  isStepwiseMode, onGoStepwise, onStepNext, onStepPrev,
+  isStepwiseMode, onGoStepwise, onExitStepwise, onStepNext, onStepPrev,
   stepIndex, stepTotal,
   stats, frame,
 }) {
@@ -194,10 +194,10 @@ export default function Settings({
 
         <button
           className="btn btn-stepwise"
-          onClick={onGoStepwise}
+          onClick={isStepwiseMode ? onExitStepwise : onGoStepwise}
           disabled={isRunning}
         >
-          ↳ Go stepwise
+          {isStepwiseMode ? '✕ Exit stepwise' : '↳ Go stepwise'}
         </button>
 
         {isStepwiseMode && (

@@ -182,6 +182,12 @@ export default function App() {
     });
   }, [algorithm, nodes, stopAnimation]);
 
+  const handleExitStepwise = useCallback(() => {
+    resetStepwise();
+    setFrame(null);
+    setStats({ steps: 0, bestCost: null, elapsed: 0 });
+  }, [resetStepwise]);
+
   const handleStepNext = useCallback(() => {
     if (!isStepwiseMode || stepState.index >= stepFramesRef.current.length - 1) return;
 
@@ -236,6 +242,7 @@ export default function App() {
         onRandomize={handleRandomize}
         isStepwiseMode={isStepwiseMode}
         onGoStepwise={handleGoStepwise}
+        onExitStepwise={handleExitStepwise}
         onStepNext={handleStepNext}
         onStepPrev={handleStepPrev}
         stepIndex={stepState.index}
