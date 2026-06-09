@@ -32,10 +32,16 @@ export default function Settings({
   algorithm, setAlgorithm,
   speed, setSpeed,
   isRunning, onRunStop, onRandomize,
+  isStepwiseMode, onGoStepwise, onStepNext, onStepPrev,
+  stepIndex, stepTotal,
   stats, frame,
 }) {
   const selectedAlgo = ALGORITHMS.find(a => a.value === algorithm);
   const maxNodes = selectedAlgo?.maxNodes ?? 20;
+  const stepwiseCurrent = stepIndex >= 0 ? stepIndex + 1 : 0;
+  const stepwiseTotalLabel = stepTotal > 0 ? stepTotal.toLocaleString() : '...';
+  const canStepPrev = isStepwiseMode && stepIndex > 0;
+  const canStepNext = isStepwiseMode && stepIndex < stepTotal - 1;
 
   const handleAlgoChange = (e) => {
     const next = ALGORITHMS.find(a => a.value === e.target.value);
@@ -68,7 +74,7 @@ export default function Settings({
           max={maxNodes}
           value={Math.min(nodeCount, maxNodes)}
           onChange={e => setNodeCount(Number(e.target.value))}
-          disabled={isRunning}
+          disabled={isRunning || isStepwiseMode}
           className="slider"
         />
         <div className="slider-range">
@@ -83,7 +89,7 @@ export default function Settings({
         <select
           value={algorithm}
           onChange={handleAlgoChange}
-          disabled={isRunning}
+          disabled={isRunning || isStepwiseMode}
           className="select"
         >
           {ALGORITHMS.map(a => (
@@ -119,6 +125,7 @@ export default function Settings({
           max={500}
           value={speed}
           onChange={e => setSpeed(Number(e.target.value))}
+          disabled={isStepwiseMode}
           className="slider slider--speed"
         />
         <div className="slider-range">
@@ -180,9 +187,34 @@ export default function Settings({
         <button
           className={`btn ${isRunning ? 'btn-stop' : 'btn-run'}`}
           onClick={onRunStop}
+          disabled={isStepwiseMode}
         >
           {isRunning ? '■ Stop' : '▶ Run'}
         </button>
+
+        <button
+          className="btn btn-stepwise"
+          onClick={onGoStepwise}
+          disabled={isRunning}
+        >
+          ↳ Go stepwise
+        </button>
+
+        {isStepwiseMode && (
+          <div className="stepwise-panel">
+            <div className="stepwise-count">
+              Step {stepwiseCurrent.toLocaleString()} / {stepwiseTotalLabel}
+            </div>
+            <div className="stepwise-actions">
+              <button className="btn btn-step-nav" onClick={onStepPrev} disabled={!canStepPrev}>
+                ◀ Prev
+              </button>
+              <button className="btn btn-step-nav" onClick={onStepNext} disabled={!canStepNext}>
+                Next ▶
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </aside>
   );

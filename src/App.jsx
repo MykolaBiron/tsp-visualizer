@@ -18,6 +18,8 @@ export default function App() {
   const [nodes, setNodes] = useState(() => generateRandomNodes(8));
   const [frame, setFrame] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [isStepwiseMode, setIsStepwiseMode] = useState(false);
+  const [stepState, setStepState] = useState({ index: -1, total: 0 });
   const [stats, setStats] = useState({ steps: 0, bestCost: null, elapsed: 0 });
 
   const generatorRef    = useRef(null);
@@ -27,9 +29,16 @@ export default function App() {
   const algorithmRef    = useRef(algorithm);
   const stepsRef        = useRef(0);
   const startTimeRef    = useRef(0);
+  const stepFramesRef    = useRef([]);
 
   useEffect(() => { speedRef.current   = speed;     }, [speed]);
   useEffect(() => { algorithmRef.current = algorithm; }, [algorithm]);
+
+  const resetStepwise = useCallback(() => {
+    setIsStepwiseMode(false);
+    setStepState({ index: -1, total: 0 });
+    stepFramesRef.current = [];
+  }, []);
 
   const stopAnimation = useCallback(() => {
     isRunningRef.current = false;
@@ -44,23 +53,26 @@ export default function App() {
 
   const handleRandomize = useCallback(() => {
     stopAnimation();
+    resetStepwise();
     setNodes(generateRandomNodes(nodeCount));
     setFrame(null);
     stepsRef.current = 0;
     setStats({ steps: 0, bestCost: null, elapsed: 0 });
-  }, [nodeCount, stopAnimation]);
+  }, [nodeCount, stopAnimation, resetStepwise]);
 
   useEffect(() => {
     stopAnimation();
+    resetStepwise();
     setNodes(generateRandomNodes(nodeCount));
     setFrame(null);
     stepsRef.current = 0;
     setStats({ steps: 0, bestCost: null, elapsed: 0 });
-  }, [nodeCount]);
+  }, [nodeCount, stopAnimation, resetStepwise]);
 
   const handleRun = useCallback((currentNodes) => {
     if (!currentNodes || currentNodes.length < 2) return;
     stopAnimation();
+    resetStepwise();
 
     generatorRef.current = createAlgorithmGenerator(algorithm, currentNodes);
     isRunningRef.current = true;
@@ -127,7 +139,80 @@ export default function App() {
     };
 
     animRef.current = requestAnimationFrame(animate);
-  }, [algorithm, stopAnimation]);
+  }, [algorithm, stopAnimation, resetStepwise]);
+
+  const handleGoStepwise = useCallback(() => {
+    if (!nodes || nodes.length < 2) return;
+
+    stopAnimation();
+    const startedAt = performance.now();
+    const generator = createAlgorithmGenerator(algorithm, nodes);
+    const collectedFrames = [];
+
+    try {
+      while (true) {
+        const result = generator.next();
+        if (result.done) break;
+        collectedFrames.push(result.value);
+      }
+    } catch (err) {
+      console.error('Algorithm error:', err);
+      return;
+    }
+
+    stepFramesRef.current = [];
+    stepFramesRef.current = collectedFrames;
+
+    setIsStepwiseMode(true);
+    if (collectedFrames.length === 0) {
+      setStepState({ index: -1, total: 0 });
+      setFrame(null);
+      setStats({ steps: 0, bestCost: null, elapsed: 0 });
+      return;
+    }
+
+    const firstFrame = collectedFrames[0];
+    const elapsed = ((performance.now() - startedAt) / 1000).toFixed(1);
+    setStepState({ index: 0, total: collectedFrames.length });
+    setFrame(firstFrame);
+    setStats({
+      steps: 1,
+      bestCost: firstFrame.bestCost ?? null,
+      elapsed,
+    });
+  }, [algorithm, nodes, stopAnimation]);
+
+  const handleStepNext = useCallback(() => {
+    if (!isStepwiseMode || stepState.index >= stepFramesRef.current.length - 1) return;
+
+    const nextIndex = stepState.index + 1;
+    const nextFrame = stepFramesRef.current[nextIndex];
+    if (!nextFrame) return;
+
+    setFrame(nextFrame);
+    setStepState({ index: nextIndex, total: stepFramesRef.current.length });
+    setStats(prev => ({
+      ...prev,
+      steps: nextIndex + 1,
+      bestCost: nextFrame.bestCost ?? null,
+    }));
+  }, [isStepwiseMode, stepState]);
+
+  const handleStepPrev = useCallback(() => {
+    if (!isStepwiseMode || stepState.index <= 0) return;
+
+    const prevIndex = stepState.index - 1;
+    const prevFrame = stepFramesRef.current[prevIndex];
+    if (!prevFrame) return;
+
+    setFrame(prevFrame);
+    setStepState({ index: prevIndex, total: stepFramesRef.current.length });
+    setStats(prev => ({
+      ...prev,
+      steps: prevIndex + 1,
+      bestCost: prevFrame.bestCost ?? null,
+    }));
+  }, [isStepwiseMode, stepState]);
 
   const handleRunStop = useCallback(() => {
     if (isRunning) {
@@ -149,6 +234,12 @@ export default function App() {
         isRunning={isRunning}
         onRunStop={handleRunStop}
         onRandomize={handleRandomize}
+        isStepwiseMode={isStepwiseMode}
+        onGoStepwise={handleGoStepwise}
+        onStepNext={handleStepNext}
+        onStepPrev={handleStepPrev}
+        stepIndex={stepState.index}
+        stepTotal={stepState.total}
         stats={stats}
         frame={frame}
       />
