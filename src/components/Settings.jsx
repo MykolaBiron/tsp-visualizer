@@ -27,9 +27,17 @@ const ALGO_NOTES = {
     'Iterative local search. Starts with Nearest Neighbour and swaps edges to remove crossings until local minimum is found.',
 };
 
+const GRAPH_PRESETS = [
+  { value: 'random', label: 'Random' },
+  { value: 'completeGraph', label: 'Complete Graph' },
+  { value: 'grid', label: 'Grid' },
+  { value: 'clusters', label: 'Two Clusters' },
+];
+
 export default function Settings({
   nodeCount, setNodeCount,
   algorithm, setAlgorithm,
+  graphPreset, setGraphPreset,
   speed, setSpeed,
   isRunning, onRunStop, onRandomize,
   isStepwiseMode, onGoStepwise, onExitStepwise, onStepNext, onStepPrev,
@@ -101,6 +109,23 @@ export default function Settings({
         {selectedAlgo && (
           <div className="complexity-tag">{selectedAlgo.complexity}</div>
         )}
+      </div>
+
+      {/* Graph preset */}
+      <div className="settings-group">
+        <label className="settings-label">Graph Preset</label>
+        <select
+          value={graphPreset}
+          onChange={e => setGraphPreset(e.target.value)}
+          disabled={isRunning || isStepwiseMode}
+          className="select"
+        >
+          {GRAPH_PRESETS.map(preset => (
+            <option key={preset.value} value={preset.value}>
+              {preset.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Algorithm note */}

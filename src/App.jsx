@@ -3,8 +3,53 @@ import Settings from './components/Settings.jsx';
 import Graph from './components/Graph.jsx';
 import { createAlgorithmGenerator } from './algorithms/index.js';
 
-function generateRandomNodes(count) {
-  return Array.from({ length: count }, (_, i) => ({
+function generateNodes(count, preset) {
+  const safeCount = Math.max(2, count);
+
+  if (preset === 'completeGraph') {
+    return Array.from({ length: safeCount }, (_, i) => {
+      const angle = (2 * Math.PI * i) / safeCount - Math.PI / 2;
+      const radius = 0.38;
+      return {
+        id: i,
+        x: 0.5 + Math.cos(angle) * radius,
+        y: 0.5 + Math.sin(angle) * radius,
+      };
+    });
+  }
+
+  if (preset === 'grid') {
+    const cols = Math.ceil(Math.sqrt(safeCount));
+    const rows = Math.ceil(safeCount / cols);
+    const xStep = cols === 1 ? 0 : 0.76 / (cols - 1);
+    const yStep = rows === 1 ? 0 : 0.76 / (rows - 1);
+
+    return Array.from({ length: safeCount }, (_, i) => {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      return {
+        id: i,
+        x: 0.12 + col * xStep,
+        y: 0.12 + row * yStep,
+      };
+    });
+  }
+
+  if (preset === 'clusters') {
+    return Array.from({ length: safeCount }, (_, i) => {
+      const leftCluster = i % 2 === 0;
+      const centerX = leftCluster ? 0.3 : 0.7;
+      const centerY = leftCluster ? 0.35 : 0.65;
+      const spread = 0.12;
+      return {
+        id: i,
+        x: centerX + (Math.random() * 2 - 1) * spread,
+        y: centerY + (Math.random() * 2 - 1) * spread,
+      };
+    });
+  }
+
+  return Array.from({ length: safeCount }, (_, i) => ({
     id: i,
     x: 0.08 + Math.random() * 0.84,
     y: 0.08 + Math.random() * 0.84,
@@ -14,8 +59,9 @@ function generateRandomNodes(count) {
 export default function App() {
   const [nodeCount, setNodeCount] = useState(8);
   const [algorithm, setAlgorithm] = useState('nearestNeighbour');
+  const [graphPreset, setGraphPreset] = useState('random');
   const [speed, setSpeed] = useState(10);
-  const [nodes, setNodes] = useState(() => generateRandomNodes(8));
+  const [nodes, setNodes] = useState(() => generateNodes(8, 'random'));
   const [frame, setFrame] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [isStepwiseMode, setIsStepwiseMode] = useState(false);
@@ -54,20 +100,20 @@ export default function App() {
   const handleRandomize = useCallback(() => {
     stopAnimation();
     resetStepwise();
-    setNodes(generateRandomNodes(nodeCount));
+    setNodes(generateNodes(nodeCount, graphPreset));
     setFrame(null);
     stepsRef.current = 0;
     setStats({ steps: 0, bestCost: null, elapsed: 0 });
-  }, [nodeCount, stopAnimation, resetStepwise]);
+  }, [nodeCount, graphPreset, stopAnimation, resetStepwise]);
 
   useEffect(() => {
     stopAnimation();
     resetStepwise();
-    setNodes(generateRandomNodes(nodeCount));
+    setNodes(generateNodes(nodeCount, graphPreset));
     setFrame(null);
     stepsRef.current = 0;
     setStats({ steps: 0, bestCost: null, elapsed: 0 });
-  }, [nodeCount, stopAnimation, resetStepwise]);
+  }, [nodeCount, graphPreset, stopAnimation, resetStepwise]);
 
   const handleRun = useCallback((currentNodes) => {
     if (!currentNodes || currentNodes.length < 2) return;
@@ -235,6 +281,8 @@ export default function App() {
         setNodeCount={setNodeCount}
         algorithm={algorithm}
         setAlgorithm={setAlgorithm}
+        graphPreset={graphPreset}
+        setGraphPreset={setGraphPreset}
         speed={speed}
         setSpeed={setSpeed}
         isRunning={isRunning}
